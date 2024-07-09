@@ -61,11 +61,15 @@ impl App {
 
     fn init_grid(&mut self) {
         // just a glider
+        self.grid[0][1] = true;
+        self.grid[1][2] = true;
+        self.grid[2][0] = true;
+        self.grid[2][2] = true;
         self.grid[2][1] = true;
-        self.grid[3][2] = true;
-        self.grid[4][0] = true;
-        self.grid[4][2] = true;
-        self.grid[4][1] = true;
+
+        self.grid[7][8] = true;
+        self.grid[8][8] = true;
+        self.grid[9][8] = true;
     }
 
     fn ui(&self, frame: &mut Frame) {
