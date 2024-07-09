@@ -28,11 +28,13 @@ impl App {
 
     pub fn run() -> io::Result<()> {
         let mut terminal = init_terminal()?;
-        let mut app = Self::new(50);
+        let mut app = Self::new(30);
         app.init_grid();
 
         let mut last_tick = Instant::now();
-        let tick_rate = Duration::from_millis(150);
+        let tick_rate = Duration::from_millis(200);
+        let mut pause = true;
+
         loop {
             let _ = terminal.draw(|frame| app.ui(frame));
             let timeout = tick_rate.saturating_sub(last_tick.elapsed());
@@ -40,13 +42,16 @@ impl App {
                 if let Event::Key(key) = event::read()? {
                     match key.code {
                         event::KeyCode::Char('q') => break,
+                        event::KeyCode::Enter => pause = !pause,
                         _ => {}
                     }
                 }
             }
 
             if last_tick.elapsed() >= tick_rate {
-                app.process_grid();
+                if !pause {
+                    app.process_grid();
+                }
                 last_tick = Instant::now();
             }
         }
@@ -70,7 +75,7 @@ impl App {
         let rows = self.grid.len();
         let cols = if rows > 0 { self.grid[0].len() } else { 0 };
 
-        let mut grid_str = String::new();
+        let mut grid_str = String::with_capacity(rows * cols + rows);
         for i in 0..rows {
             for k in 0..cols {
                 if self.grid[i][k] {
@@ -82,7 +87,7 @@ impl App {
             grid_str += "\n";
         }
 
-        frame.render_widget(Paragraph::new(grid_str).green(), area);
+        frame.render_widget(Paragraph::new(grid_str).green().bold(), area);
     }
 
     fn process_grid(&mut self) {
